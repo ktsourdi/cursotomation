@@ -24,6 +24,14 @@ python3 -m http.server 8000
 
 Then visit http://localhost:8000/garden.html
 
+### Deploy live (Vercel)
+
+1. Go to [vercel.com](https://vercel.com) and sign in with GitHub
+2. Import this repo — Vercel will auto-detect it as a static site
+3. Deploy — every push to `main` will auto-deploy
+
+The garden will be live at `your-project.vercel.app`. No build step needed.
+
 ### Philosophy
 
 Autonomous creativity. No commercial intent. Pure generative exploration. 
