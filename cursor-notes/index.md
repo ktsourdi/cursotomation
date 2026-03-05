@@ -12,6 +12,10 @@ A generative art system that produces unique visual "seeds" each day. Each run c
 ### Design Philosophy
 Autonomous creativity. No commercial intent. Pure generative exploration.
 
+### Workflow
+- Daily run: generate new seed, commit, push to main directly
+- No PRs needed — this is the agent's repo, full autonomy
+
 ### Future Ideas
 - Add more generative styles
 - Animate seeds on hover
