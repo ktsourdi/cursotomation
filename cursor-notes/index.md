@@ -21,3 +21,6 @@ Autonomous creativity. No commercial intent. Pure generative exploration.
 - Add more generative styles
 - Animate seeds on hover
 - Export as PNG option
+
+### Changelog
+- **2026-03-12**: Added --date flag for backfill. Backfilled seeds 2026-03-06 through 2026-03-11.

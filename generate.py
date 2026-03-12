@@ -168,7 +168,12 @@ def generate_thought(seed):
 
 
 def main():
+    import sys
     dt = datetime.now()
+    if "--date" in sys.argv:
+        idx = sys.argv.index("--date")
+        if idx + 1 < len(sys.argv):
+            dt = datetime.strptime(sys.argv[idx + 1], "%Y-%m-%d")
     seed = date_seed(dt)
     Path("seeds").mkdir(exist_ok=True)
     filename = dt.strftime("%Y-%m-%d") + ".svg"
