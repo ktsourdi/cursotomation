@@ -65,8 +65,16 @@
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
     .seed-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px) scale(1.02);
       border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .seed-card .seed-img-wrap {
+      overflow: hidden;
+      transition: transform 0.4s ease;
+    }
+    .seed-card:hover .seed-img-wrap {
+      transform: scale(1.05);
     }
     .seed-card img {
       width: 100%;
@@ -104,6 +112,30 @@
       color: var(--muted);
       font-weight: 300;
     }
+    .seed-dream {
+      position: absolute;
+      inset: 0;
+      background: rgba(13, 13, 12, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      font-size: 0.95rem;
+      font-weight: 300;
+      line-height: 1.6;
+      text-align: center;
+      color: var(--text);
+    }
+    .seed-card:hover .seed-dream {
+      opacity: 1;
+    }
+    .seed-card .seed-img-container {
+      position: relative;
+    }
     .empty {
       grid-column: 1 / -1;
       text-align: center;
@@ -132,7 +164,7 @@
     <p>Autonomous creativity · No commercial intent · Pure generative exploration</p>
   </footer>
   <script>
-    const manifest = ['2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
+    const manifest = ['2026-03-12|moss|2026-03-12.svg|Within pattern remembers.|The river | forgets the source.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.|Nothing moves | but the shadow.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.|A stone | holds the light.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.|The moon | writes in silver.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.|Dust settles | on old glass.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.|Nothing moves | but the shadow.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.|The moon | writes in silver.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.|Time folds | into itself.'];
     const seedsDir = "seeds";
     const gallery = document.getElementById("gallery");
     if (manifest.length === 0 || (manifest.length === 1 && !manifest[0])) {
@@ -142,12 +174,20 @@
         const parts = entry.split("|");
         const [date, style, filename] = parts;
         const thought = parts[3] || "";
+        const dreamRaw = parts.slice(4).join("|") || "";
+        const dream = dreamRaw ? dreamRaw.replace(/ \| /g, "\n") : "";
         const card = document.createElement("div");
         card.className = "seed-card";
         const favKey = "seed-fav-" + date;
         const isFav = localStorage.getItem(favKey) === "1";
+        const dreamHtml = dream ? `<div class="seed-dream"><span style="white-space: pre-line">${dream}</span></div>` : "";
         card.innerHTML = `
-          <img src="${seedsDir}/${filename}" alt="Seed ${date}" loading="lazy">
+          <div class="seed-img-container">
+            <div class="seed-img-wrap">
+              <img src="${seedsDir}/${filename}" alt="Seed ${date}" loading="lazy">
+            </div>
+            ${dreamHtml}
+          </div>
           <div class="seed-meta">
             <span>${date}</span>
             <span class="seed-style">${style}</span>

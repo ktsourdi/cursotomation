@@ -13,7 +13,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "ink", "moss"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,6 +131,39 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
+
+    elif style == "ink":
+        n_blots = rng.randint(4, 9)
+        for _ in range(n_blots):
+            cx = rng.uniform(60, w - 60)
+            cy = rng.uniform(60, h - 60)
+            r_base = 25 + rng.random() * 45
+            pts = []
+            n_ctrl = rng.randint(6, 12)
+            for i in range(n_ctrl):
+                angle = i * 6.28 / n_ctrl + rng.random() * 0.5
+                r = r_base * (0.6 + rng.random() * 0.8)
+                x = cx + r * (1 if rng.random() > 0.3 else -1) * (0.5 + rng.random())
+                y = cy + r * 0.7 * (1 if rng.random() > 0.4 else -1)
+                pts.append(f"{x},{y}")
+            if len(pts) >= 3:
+                paths.append("M " + " L ".join(pts) + " Z")
+
+    elif style == "moss":
+        n_clusters = rng.randint(5, 12)
+        for _ in range(n_clusters):
+            cx = rng.uniform(30, w - 30)
+            cy = rng.uniform(30, h - 30)
+            n_dots = rng.randint(8, 25)
+            spread = 15 + rng.random() * 35
+            for _ in range(n_dots):
+                dx = rng.gauss(0, spread)
+                dy = rng.gauss(0, spread * 0.8)
+                x = cx + dx
+                y = cy + dy
+                if 5 < x < w - 5 and 5 < y < h - 5:
+                    r = rng.uniform(0.8, 3.5)
+                    paths.append(f"M {x+r},{y} m -{r},0 a {r},{r} 0 1,1 {r*2},0 a {r},{r} 0 1,1 -{r*2},0")
     
     else:
         cell = rng.randint(20, 50)
@@ -145,7 +178,12 @@ def generate_svg(seed, output_path):
                     else:
                         paths.append(f"M {ix},{iy} L {ix+cell},{iy+cell}")
     
-    svg_parts = [f'<path d="{p}" fill="none" stroke="{fg}" stroke-width="{rng.uniform(0.5, 3)}" opacity="{rng.uniform(0.3, 0.9)}"/>' for p in paths]
+    if style == "ink":
+        svg_parts = [f'<path d="{p}" fill="{fg}" fill-opacity="{rng.uniform(0.15, 0.5)}" stroke="none"/>' for p in paths]
+    elif style == "moss":
+        svg_parts = [f'<path d="{p}" fill="{fg}" fill-opacity="{rng.uniform(0.4, 0.9)}" stroke="none"/>' for p in paths]
+    else:
+        svg_parts = [f'<path d="{p}" fill="none" stroke="{fg}" stroke-width="{rng.uniform(0.5, 3)}" opacity="{rng.uniform(0.3, 0.9)}"/>' for p in paths]
     
     svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">
@@ -167,6 +205,45 @@ def generate_thought(seed):
     return f"{rng.choice(openers)} {rng.choice(middles)} {rng.choice(closers)}"
 
 
+def _backfill_dreams(entries):
+    result = []
+    for e in entries:
+        if not e.strip():
+            continue
+        parts = e.split("|")
+        if len(parts) >= 5:
+            result.append(e)
+        else:
+            date_str = parts[0]
+            try:
+                dt = datetime.strptime(date_str, "%Y-%m-%d")
+                seed = date_seed(dt)
+                dream = generate_dream(seed)
+                dream_flat = dream.replace("\n", " | ")
+                result.append(f"{e}|{dream_flat}")
+            except ValueError:
+                result.append(e)
+    return result
+
+
+def generate_dream(seed):
+    rng = random.Random(seed + 2)
+    lines = [
+        ("The wind", "carries no name."),
+        ("A stone", "holds the light."),
+        ("Between sleep", "and waking."),
+        ("The river", "forgets the source."),
+        ("Dust settles", "on old glass."),
+        ("A bird", "crosses the frame."),
+        ("The moon", "writes in silver."),
+        ("Nothing moves", "but the shadow."),
+        ("The garden", "dreams of rain."),
+        ("Time folds", "into itself."),
+    ]
+    a, b = rng.choice(lines)
+    return f"{a}\n{b}"
+
+
 def main():
     import sys
     dt = datetime.now()
@@ -180,14 +257,17 @@ def main():
     output_path = Path("seeds") / filename
     style = generate_svg(seed, output_path)
     thought = generate_thought(seed)
+    dream = generate_dream(seed)
     thought_path = Path("seeds") / (dt.strftime("%Y-%m-%d") + ".txt")
     thought_path.write_text(thought)
     manifest_path = Path("seeds") / "manifest.txt"
     entries = manifest_path.read_text().splitlines() if manifest_path.exists() else []
-    entry = f"{dt.strftime('%Y-%m-%d')}|{style}|{filename}|{thought}"
+    dream_flat = dream.replace("\n", " | ")
+    entry = f"{dt.strftime('%Y-%m-%d')}|{style}|{filename}|{thought}|{dream_flat}"
     entries = [e for e in entries if filename not in e]
     entries.append(entry)
     entries.sort(key=lambda e: e.split("|")[0], reverse=True)
+    entries = _backfill_dreams(entries)
     manifest_path.write_text("\n".join(entries))
     update_gallery(entries)
     print(f"Seed grown: {filename} ({style})")

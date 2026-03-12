@@ -1,8 +1,8 @@
-2026-03-12|grid|2026-03-12.svg|Within pattern remembers.
-2026-03-11|constellations|2026-03-11.svg|Between drift lingers.
-2026-03-10|roots|2026-03-10.svg|Within whisper emerges.
-2026-03-09|waves|2026-03-09.svg|A shadow finds its form.
-2026-03-08|constellations|2026-03-08.svg|Within shape lingers.
-2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.
-2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.
-2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.
+2026-03-12|moss|2026-03-12.svg|Within pattern remembers.|The river | forgets the source.
+2026-03-11|constellations|2026-03-11.svg|Between drift lingers.|Nothing moves | but the shadow.
+2026-03-10|roots|2026-03-10.svg|Within whisper emerges.|A stone | holds the light.
+2026-03-09|waves|2026-03-09.svg|A shadow finds its form.|The moon | writes in silver.
+2026-03-08|constellations|2026-03-08.svg|Within shape lingers.|Dust settles | on old glass.
+2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.|Nothing moves | but the shadow.
+2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.|The moon | writes in silver.
+2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.|Time folds | into itself.
