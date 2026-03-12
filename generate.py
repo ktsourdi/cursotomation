@@ -13,7 +13,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -96,6 +96,41 @@ def generate_svg(seed, output_path):
                 py = cy + r * 0.6 * (1 if rng.random() > 0.5 else -1)
                 pts.append(f"{px},{py}")
             paths.append("M " + " L ".join(pts) + " Z")
+    
+    elif style == "constellations":
+        n_stars = rng.randint(12, 28)
+        stars = []
+        for _ in range(n_stars):
+            x = rng.uniform(20, w - 20)
+            y = rng.uniform(20, h - 20)
+            stars.append((x, y))
+        threshold = 60 + rng.random() * 40
+        for i, (x1, y1) in enumerate(stars):
+            for j, (x2, y2) in enumerate(stars):
+                if i < j:
+                    d = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+                    if d < threshold and rng.random() > 0.3:
+                        paths.append(f"M {x1},{y1} L {x2},{y2}")
+        for x, y in stars:
+            r = rng.uniform(1, 4)
+            paths.append(f"M {x+r},{y} m -{r},0 a {r},{r} 0 1,1 {r*2},0 a {r},{r} 0 1,1 -{r*2},0")
+    
+    elif style == "roots":
+        cx, cy = w / 2, h - 30
+        n_branches = rng.randint(4, 9)
+        for _ in range(n_branches):
+            angle = rng.uniform(-2.5, 2.5)
+            x, y = cx, cy
+            pts = [f"{x},{y}"]
+            for step in range(rng.randint(8, 18)):
+                angle += rng.gauss(0, 0.4)
+                length = 8 + rng.random() * 15
+                x += length * (0.3 + rng.random() * 0.7) * (1 if rng.random() > 0.3 else -1)
+                y -= length * (0.5 + rng.random() * 0.5)
+                if y < 10 or x < 10 or x > w - 10:
+                    break
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
     
     else:
         cell = rng.randint(20, 50)
