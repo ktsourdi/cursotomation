@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 import random
 import hashlib
 from datetime import datetime
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora", "veins"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,7 +132,38 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
-    
+
+    elif style == "aurora":
+        n_bands = rng.randint(4, 9)
+        for b in range(n_bands):
+            y_base = h * (b + 1) / (n_bands + 1) + rng.gauss(0, 15)
+            pts = []
+            for x in range(0, w + 5, 8):
+                wave = 25 * (1 + 0.5 * (1 if (x // 40) % 2 else -1))
+                drift = rng.gauss(0, 12) + wave * (1 if rng.random() > 0.4 else -1)
+                y = y_base + drift
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+
+    elif style == "veins":
+        cx, cy = w / 2, h / 2
+        n_branches = rng.randint(8, 16)
+        for _ in range(n_branches):
+            angle = rng.random() * 6.28
+            x, y = cx + rng.gauss(0, 25), cy + rng.gauss(0, 25)
+            pts = [f"{x},{y}"]
+            for step in range(rng.randint(10, 22)):
+                angle += rng.gauss(0, 0.5)
+                length = 6 + rng.random() * 14
+                nx = x + length * math.cos(angle) + rng.gauss(0, 3)
+                ny = y + length * math.sin(angle) + rng.gauss(0, 3)
+                if 15 < nx < w - 15 and 15 < ny < h - 15:
+                    pts.append(f"{nx},{ny}")
+                    x, y = nx, ny
+                else:
+                    break
+            paths.append("M " + " L ".join(pts))
+
     else:
         cell = rng.randint(20, 50)
         for ix in range(0, w, cell):
