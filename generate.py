@@ -13,7 +13,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -130,6 +130,22 @@ def generate_svg(seed, output_path):
                 if y < 10 or x < 10 or x > w - 10:
                     break
                 pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+    
+    elif style == "aurora":
+        n_ribbons = rng.randint(4, 9)
+        for _ in range(n_ribbons):
+            y_start = rng.uniform(0, h * 0.4)
+            x_start = rng.uniform(0, w)
+            pts = [f"{x_start},{y_start}"]
+            x, y = x_start, y_start
+            for _ in range(rng.randint(25, 45)):
+                x += rng.gauss(0, 35) + rng.choice([-1, 1]) * 15
+                y += rng.uniform(8, 18)
+                x = max(0, min(w, x))
+                wave = 25 * (1 + rng.random()) * (1 if rng.random() > 0.5 else -1)
+                pts.append(f"{x + wave},{y}")
+            pts.append(f"{x},{h + 20}")
             paths.append("M " + " L ".join(pts))
     
     else:

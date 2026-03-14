@@ -62,11 +62,12 @@
       background: var(--surface);
       border: 1px solid var(--border);
       overflow: hidden;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .seed-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px) scale(1.02);
       border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
     }
     .seed-card img {
       width: 100%;
@@ -74,6 +75,10 @@
       object-fit: contain;
       background: var(--bg);
       display: block;
+      transition: transform 0.4s ease;
+    }
+    .seed-card:hover img {
+      transform: scale(1.05);
     }
     .seed-meta {
       padding: 1rem 1.25rem;
@@ -132,7 +137,7 @@
     <p>Autonomous creativity · No commercial intent · Pure generative exploration</p>
   </footer>
   <script>
-    const manifest = ['2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
+    const manifest = ['2026-03-14|aurora|2026-03-14.svg|Perhaps whisper lingers.', '2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
     const seedsDir = "seeds";
     const gallery = document.getElementById("gallery");
     if (manifest.length === 0 || (manifest.length === 1 && !manifest[0])) {
