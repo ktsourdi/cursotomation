@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 import random
 import hashlib
 from datetime import datetime
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "lichen"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,6 +132,30 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
+    
+    elif style == "lichen":
+        n_patches = rng.randint(8, 18)
+        for _ in range(n_patches):
+            cx = rng.uniform(30, w - 30)
+            cy = rng.uniform(30, h - 30)
+            n_points = rng.randint(5, 12)
+            angles = sorted([rng.random() * 6.28 for _ in range(n_points)])
+            pts = []
+            for a in angles:
+                r = 12 + rng.random() * 45 + rng.gauss(0, 10)
+                r = max(8, min(r, 90))
+                px = cx + r * math.cos(a)
+                py = cy + r * math.sin(a) * 0.8
+                pts.append(f"{px},{py}")
+            if len(pts) >= 3:
+                paths.append("M " + " L ".join(pts) + " Z")
+        for _ in range(rng.randint(3, 8)):
+            x1, y1 = rng.uniform(20, w - 20), rng.uniform(20, h - 20)
+            x2 = x1 + rng.gauss(0, 35)
+            y2 = y1 + rng.gauss(0, 35)
+            x2 = max(10, min(w - 10, x2))
+            y2 = max(10, min(h - 10, y2))
+            paths.append(f"M {x1},{y1} L {x2},{y2}")
     
     else:
         cell = rng.randint(20, 50)
