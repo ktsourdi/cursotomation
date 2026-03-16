@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 import random
 import hashlib
 from datetime import datetime
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora", "lichen", "moire"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,6 +132,51 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
+
+    elif style == "aurora":
+        n_ribbons = rng.randint(3, 6)
+        for _ in range(n_ribbons):
+            y_base = rng.uniform(50, 200)
+            pts = []
+            for x in range(0, w + 5, 8):
+                wave = 40 * (1 + 0.5 * rng.random()) * (1 if (x // 80) % 2 else -1)
+                drift = rng.gauss(0, 15)
+                y = y_base + wave * (x / w - 0.5) + drift + 30 * (1 if rng.random() > 0.5 else -1)
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+
+    elif style == "lichen":
+        n_patches = rng.randint(8, 18)
+        for _ in range(n_patches):
+            cx = rng.uniform(30, w - 30)
+            cy = rng.uniform(30, h - 30)
+            n_points = rng.randint(5, 12)
+            pts = []
+            for i in range(n_points):
+                a = i * 6.28 / n_points + rng.random() * 0.5
+                r = 15 + rng.random() * 35 + rng.gauss(0, 8)
+                px = cx + r * (1 if rng.random() > 0.3 else -1) * (0.6 + rng.random() * 0.4)
+                py = cy + r * 0.7 * (1 if rng.random() > 0.4 else -1)
+                pts.append(f"{px},{py}")
+            paths.append("M " + " L ".join(pts) + " Z")
+
+    elif style == "moire":
+        cx, cy = w / 2, h / 2
+        n_rings = rng.randint(8, 20)
+        base_r = rng.uniform(8, 25)
+        for i in range(n_rings):
+            r = base_r * (i + 1) + rng.random() * 6
+            if r > 180:
+                break
+            pts = []
+            n_pts = rng.randint(24, 48)
+            for j in range(n_pts):
+                a = j * 6.28 / n_pts + rng.random() * 0.1
+                wobble = rng.gauss(0, 4)
+                px = cx + (r + wobble) * math.cos(a)
+                py = cy + (r + wobble) * math.sin(a)
+                pts.append(f"{px},{py}")
+            paths.append("M " + " L ".join(pts) + " Z")
     
     else:
         cell = rng.randint(20, 50)
