@@ -59,14 +59,31 @@
       margin: 0 auto;
     }
     .seed-card {
+      position: relative;
       background: var(--surface);
       border: 1px solid var(--border);
       overflow: hidden;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .seed-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px) scale(1.02);
       border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .seed-card.today {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 4px 16px rgba(139,115,85,0.2);
+    }
+    .seed-card.today::before {
+      content: "today";
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      z-index: 1;
     }
     .seed-card img {
       width: 100%;
@@ -132,9 +149,10 @@
     <p>Autonomous creativity · No commercial intent · Pure generative exploration</p>
   </footer>
   <script>
-    const manifest = ['2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
+    const manifest = ['2026-03-17|crystals|2026-03-17.svg|Today the echo breathes.', '2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
     const seedsDir = "seeds";
     const gallery = document.getElementById("gallery");
+    const todayStr = new Date().toISOString().slice(0, 10);
     if (manifest.length === 0 || (manifest.length === 1 && !manifest[0])) {
       gallery.innerHTML = '<p class="empty">No seeds yet. Run generate.py to grow the first one.</p>';
     } else {
@@ -143,7 +161,7 @@
         const [date, style, filename] = parts;
         const thought = parts[3] || "";
         const card = document.createElement("div");
-        card.className = "seed-card";
+        card.className = "seed-card" + (date === todayStr ? " today" : "");
         const favKey = "seed-fav-" + date;
         const isFav = localStorage.getItem(favKey) === "1";
         card.innerHTML = `

@@ -13,7 +13,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora", "lichen"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,7 +131,37 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
-    
+
+    elif style == "aurora":
+        n_bands = rng.randint(5, 11)
+        for _ in range(n_bands):
+            y_base = rng.uniform(40, 360)
+            pts = []
+            for x in range(0, w + 1, 6):
+                wave = 35 * (1 + 0.6 * (x / w)) * (1 if (int(x / 25) % 2) else -1)
+                y = y_base + wave + rng.gauss(0, 12)
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+
+    elif style == "lichen":
+        n_clusters = rng.randint(5, 12)
+        for _ in range(n_clusters):
+            cx = rng.uniform(30, w - 30)
+            cy = rng.uniform(30, h - 30)
+            n_blobs = rng.randint(4, 10)
+            for _ in range(n_blobs):
+                angle = rng.random() * 6.28
+                dist = rng.uniform(5, 45)
+                px = cx + dist * (0.7 + rng.random() * 0.6) * (1 if rng.random() > 0.4 else -1)
+                py = cy + dist * 0.5 * (1 if rng.random() > 0.5 else -1)
+                n_pts = rng.randint(5, 9)
+                pts = []
+                for i in range(n_pts):
+                    a = i * 6.28 / n_pts + rng.random() * 0.4
+                    r = rng.uniform(8, 25)
+                    pts.append(f"{px + r * (0.8 + rng.random() * 0.4)},{py + r * 0.6 * (1 if rng.random() > 0.3 else -1)}")
+                paths.append("M " + " L ".join(pts) + " Z")
+
     else:
         cell = rng.randint(20, 50)
         for ix in range(0, w, cell):
@@ -161,9 +191,9 @@ def generate_svg(seed, output_path):
 
 def generate_thought(seed):
     rng = random.Random(seed + 1)
-    openers = ["Today the", "A", "Perhaps", "Between", "Within", "Through", "Beyond"]
-    middles = ["pattern", "shape", "trace", "echo", "shadow", "whisper", "drift"]
-    closers = ["finds its form.", "emerges.", "lingers.", "unfolds.", "settles.", "remembers."]
+    openers = ["Today the", "A", "Perhaps", "Between", "Within", "Through", "Beyond", "Under", "After", "Before", "Beneath", "Above"]
+    middles = ["pattern", "shape", "trace", "echo", "shadow", "whisper", "drift", "stain", "crease", "fold", "rift", "breath", "pulse", "stretch"]
+    closers = ["finds its form.", "emerges.", "lingers.", "unfolds.", "settles.", "remembers.", "bends.", "fades.", "holds.", "breaks.", "breathes.", "waits.", "returns."]
     return f"{rng.choice(openers)} {rng.choice(middles)} {rng.choice(closers)}"
 
 
