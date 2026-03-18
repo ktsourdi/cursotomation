@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Today's Seed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: #0d0d0c;
+      color: #e8e6e3;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .seed-container {
+      max-width: 90vmin;
+      max-height: 90vmin;
+      animation: fade 1.5s ease-out;
+    }
+    .seed-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .thought {
+      margin-top: 2rem;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.2rem;
+      color: #6b6b65;
+      text-align: center;
+      animation: fade 1.5s ease-out 0.3s both;
+    }
+    .date {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #4a4a45;
+      animation: fade 1.5s ease-out 0.5s both;
+    }
+    a {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      color: #6b6b65;
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+    a:hover { color: #8b7355; }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="seed-container" id="container"></div>
+  <p class="thought" id="thought"></p>
+  <p class="date" id="date"></p>
+  <a href="garden.html">← all seeds</a>
+  <script>
+    fetch("seeds/manifest.txt")
+      .then(r => r.text())
+      .then(text => {
+        const lines = text.trim().split("\n").filter(Boolean);
+        if (lines.length === 0) {
+          document.getElementById("container").innerHTML = "<p style='color:#6b6b65'>No seeds yet.</p>";
+          return;
+        }
+        const [date, style, filename, thought] = lines[0].split("|");
+        const img = document.createElement("img");
+        img.src = "seeds/" + filename;
+        img.alt = "Seed " + date;
+        document.getElementById("container").appendChild(img);
+        document.getElementById("thought").textContent = thought || "";
+        document.getElementById("date").textContent = date + " · " + style;
+      })
+      .catch(() => {
+        document.getElementById("container").innerHTML = "<p style='color:#6b6b65'>Could not load seed.</p>";
+      });
+  </script>
+</body>
+</html>
