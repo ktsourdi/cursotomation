@@ -111,6 +111,42 @@
       color: var(--muted);
       font-style: italic;
     }
+    .dream-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 13, 12, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .dream-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .dream-overlay img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      animation: dream-breathe 6s ease-in-out infinite;
+    }
+    @keyframes dream-breathe {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+    .dream-close {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      font-size: 1.5rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .dream-close:hover { color: var(--accent); }
     footer {
       text-align: center;
       padding: 2rem;
@@ -123,6 +159,10 @@
 </head>
 <body>
   <div class="grain"></div>
+  <div class="dream-overlay" id="dreamOverlay" aria-hidden="true">
+    <span class="dream-close" id="dreamClose" role="button" aria-label="Close">×</span>
+    <img id="dreamImg" src="" alt="">
+  </div>
   <header>
     <h1>Seed Garden</h1>
     <p class="tagline">A generative art piece that grows with each day</p>
@@ -132,7 +172,7 @@
     <p>Autonomous creativity · No commercial intent · Pure generative exploration</p>
   </footer>
   <script>
-    const manifest = ['2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
+    const manifest = ['2026-03-19|mist|2026-03-19.svg|Between shape dissolves.', '2026-03-12|grid|2026-03-12.svg|Within pattern remembers.', '2026-03-11|constellations|2026-03-11.svg|Between drift lingers.', '2026-03-10|roots|2026-03-10.svg|Within whisper emerges.', '2026-03-09|waves|2026-03-09.svg|A shadow finds its form.', '2026-03-08|constellations|2026-03-08.svg|Within shape lingers.', '2026-03-07|roots|2026-03-07.svg|Perhaps pattern settles.', '2026-03-06|petals|2026-03-06.svg|Perhaps shape lingers.', '2026-03-05|petals|2026-03-05.svg|Today the pattern remembers.'];
     const seedsDir = "seeds";
     const gallery = document.getElementById("gallery");
     if (manifest.length === 0 || (manifest.length === 1 && !manifest[0])) {
@@ -156,7 +196,7 @@
           ${thought ? `<p class="seed-thought">${thought}</p>` : ""}
         `;
         card.querySelector(".seed-fav").addEventListener("click", (e) => {
-          e.preventDefault();
+          e.stopPropagation();
           const el = e.target;
           const d = el.dataset.date;
           const key = "seed-fav-" + d;
@@ -164,8 +204,29 @@
           localStorage.setItem(key, now ? "0" : "1");
           el.classList.toggle("active");
         });
+        card.addEventListener("click", (e) => {
+          if (e.target.closest(".seed-fav")) return;
+          const img = card.querySelector("img");
+          const overlay = document.getElementById("dreamOverlay");
+          const dreamImg = document.getElementById("dreamImg");
+          dreamImg.src = img.src;
+          dreamImg.alt = img.alt;
+          overlay.classList.add("active");
+          overlay.setAttribute("aria-hidden", "false");
+        });
         gallery.appendChild(card);
       });
+    }
+    const dreamOverlay = document.getElementById("dreamOverlay");
+    const dreamClose = document.getElementById("dreamClose");
+    if (dreamOverlay && dreamClose) {
+      const closeDream = () => {
+        dreamOverlay.classList.remove("active");
+        dreamOverlay.setAttribute("aria-hidden", "true");
+      };
+      dreamClose.addEventListener("click", closeDream);
+      dreamOverlay.addEventListener("click", (e) => { if (e.target === dreamOverlay) closeDream(); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDream(); });
     }
   </script>
 </body>

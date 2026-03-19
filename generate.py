@@ -13,7 +13,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "lichen", "mist"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,6 +131,40 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
+
+    elif style == "lichen":
+        corners = [(0, 0), (w, 0), (w, h), (0, h)]
+        for cx, cy in corners:
+            n_patches = rng.randint(3, 7)
+            for _ in range(n_patches):
+                pts = [f"{cx},{cy}"]
+                x, y = cx, cy
+                for _ in range(rng.randint(6, 14)):
+                    dist = 8 + rng.random() * 25
+                    dx = dist * (0.4 + rng.random() * 0.6) * (1 if cx < w/2 else -1)
+                    dy = dist * 0.5 * (0.4 + rng.random() * 0.6) * (1 if cy < h/2 else -1)
+                    x = max(0, min(w, x + dx + rng.gauss(0, 8)))
+                    y = max(0, min(h, y + dy + rng.gauss(0, 8)))
+                    pts.append(f"{x},{y}")
+                pts.append(f"{cx},{cy}")
+                paths.append("M " + " L ".join(pts) + " Z")
+
+    elif style == "mist":
+        n_blobs = rng.randint(12, 24)
+        for _ in range(n_blobs):
+            cx = rng.uniform(0, w)
+            cy = rng.uniform(0, h)
+            rx = 30 + rng.random() * 80
+            ry = 20 + rng.random() * 60
+            pts = []
+            for i in range(rng.randint(8, 16)):
+                a = i * 6.28 / rng.randint(8, 16) + rng.random() * 0.5
+                r = rx * (0.6 + rng.random() * 0.4)
+                px = cx + r * (1 if rng.random() > 0.5 else -1)
+                py = cy + ry * 0.5 * (0.6 + rng.random() * 0.4) * (1 if rng.random() > 0.5 else -1)
+                pts.append(f"{px},{py}")
+            if len(pts) >= 3:
+                paths.append("M " + " L ".join(pts) + " Z")
     
     else:
         cell = rng.randint(20, 50)
@@ -145,7 +179,10 @@ def generate_svg(seed, output_path):
                     else:
                         paths.append(f"M {ix},{iy} L {ix+cell},{iy+cell}")
     
-    svg_parts = [f'<path d="{p}" fill="none" stroke="{fg}" stroke-width="{rng.uniform(0.5, 3)}" opacity="{rng.uniform(0.3, 0.9)}"/>' for p in paths]
+    if style == "mist":
+        svg_parts = [f'<path d="{p}" fill="{fg}" fill-opacity="{rng.uniform(0.08, 0.22)}" stroke="none"/>' for p in paths]
+    else:
+        svg_parts = [f'<path d="{p}" fill="none" stroke="{fg}" stroke-width="{rng.uniform(0.5, 3)}" opacity="{rng.uniform(0.3, 0.9)}"/>' for p in paths]
     
     svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">
@@ -161,9 +198,9 @@ def generate_svg(seed, output_path):
 
 def generate_thought(seed):
     rng = random.Random(seed + 1)
-    openers = ["Today the", "A", "Perhaps", "Between", "Within", "Through", "Beyond"]
-    middles = ["pattern", "shape", "trace", "echo", "shadow", "whisper", "drift"]
-    closers = ["finds its form.", "emerges.", "lingers.", "unfolds.", "settles.", "remembers."]
+    openers = ["Today the", "A", "Perhaps", "Between", "Within", "Through", "Beyond", "Under", "After", "Before"]
+    middles = ["pattern", "shape", "trace", "echo", "shadow", "whisper", "drift", "breath", "pause", "silence", "edge", "fold"]
+    closers = ["finds its form.", "emerges.", "lingers.", "unfolds.", "settles.", "remembers.", "dissolves.", "holds.", "waits.", "bends."]
     return f"{rng.choice(openers)} {rng.choice(middles)} {rng.choice(closers)}"
 
 
