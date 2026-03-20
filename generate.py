@@ -13,7 +13,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora", "magnetic", "ink"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,6 +131,58 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
+
+    elif style == "aurora":
+        n_ribbons = rng.randint(4, 9)
+        for _ in range(n_ribbons):
+            y_base = rng.uniform(60, 320)
+            pts = []
+            for x in range(0, w + 1, 12):
+                wave = 40 * (1 if (x // 80) % 2 else -1) * (0.5 + rng.random())
+                drift = rng.gauss(0, 15)
+                y = y_base + wave + drift
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+
+    elif style == "magnetic":
+        n_poles = rng.randint(2, 4)
+        poles = [(rng.uniform(80, 320), rng.uniform(80, 320)) for _ in range(n_poles)]
+        for _ in range(rng.randint(16, 32)):
+            angle = rng.random() * 6.28
+            x = rng.uniform(40, w - 40)
+            y = rng.uniform(40, h - 40)
+            pts = [f"{x},{y}"]
+            for _ in range(rng.randint(12, 28)):
+                fx, fy = 0, 0
+                for px, py in poles:
+                    d = ((px - x) ** 2 + (py - y) ** 2) ** 0.5 + 1
+                    strength = 120 / (d * d)
+                    fx += (px - x) * strength * (1 if rng.random() > 0.3 else -1)
+                    fy += (py - y) * strength * (1 if rng.random() > 0.3 else -1)
+                mag = (fx * fx + fy * fy) ** 0.5 + 0.001
+                step = 6 + rng.random() * 8
+                x += (fx / mag) * step
+                y += (fy / mag) * step
+                if x < 5 or x > w - 5 or y < 5 or y > h - 5:
+                    break
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+
+    elif style == "ink":
+        n_blobs = rng.randint(8, 18)
+        for _ in range(n_blobs):
+            cx = rng.uniform(40, w - 40)
+            cy = rng.uniform(40, h - 40)
+            r_base = 15 + rng.random() * 35
+            pts = []
+            n_pts = rng.randint(6, 14)
+            for i in range(n_pts + 1):
+                angle = i * 6.28 / n_pts + rng.random() * 0.5
+                r = r_base * (0.7 + rng.random() * 0.6)
+                px = cx + r * (1 if rng.random() > 0.4 else -1) * (0.6 + rng.random() * 0.4)
+                py = cy + r * (1 if rng.random() > 0.4 else -1) * (0.6 + rng.random() * 0.4)
+                pts.append(f"{px},{py}")
+            paths.append("M " + " L ".join(pts) + " Z")
     
     else:
         cell = rng.randint(20, 50)
