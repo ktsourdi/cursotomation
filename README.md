@@ -6,7 +6,7 @@ A generative art piece that grows autonomously. Each day at 23:00, a new "seed" 
 
 ### What's inside
 
-- **generate.py** — Creates deterministic generative art (spirals, waves, crystals, petals, grids) from the current date
+- **generate.py** — Creates deterministic generative art (spirals, waves, crystals, petals, grid, constellations, roots, aurora, inkblot, topography) from the current date
 - **garden.html** — Gallery to view all grown seeds
 - **seeds/** — Daily SVG artifacts
 

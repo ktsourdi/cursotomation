@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 import random
 import hashlib
 from datetime import datetime
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora", "inkblot", "topography"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -132,6 +133,53 @@ def generate_svg(seed, output_path):
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
     
+    elif style == "aurora":
+        n_bands = rng.randint(4, 9)
+        for b in range(n_bands):
+            y_base = h * (b + 1) / (n_bands + 1) + rng.gauss(0, 20)
+            pts = []
+            for x in range(0, w + 5, 8):
+                wave = 15 * (b + 1) * (1 if (x // 80) % 2 else -1)
+                y = y_base + wave + 25 * rng.gauss(0, 0.5) + 40 * (1 if rng.random() > 0.7 else -1) * rng.random()
+                pts.append(f"{x},{y}")
+            paths.append("M " + " L ".join(pts))
+    
+    elif style == "inkblot":
+        n_blobs = rng.randint(3, 7)
+        cx = w / 2
+        for _ in range(n_blobs):
+            half_pts = []
+            start_angle = rng.random() * 6.28
+            for i in range(rng.randint(8, 18)):
+                a = start_angle + i * 6.28 / rng.randint(8, 18) + rng.gauss(0, 0.3)
+                r = 30 + rng.random() * 120 + rng.gauss(0, 25)
+                x = cx + r * (1 if rng.random() > 0.5 else -1)
+                y = h/2 + r * 0.6 * (1 if rng.random() > 0.5 else -1) * rng.random()
+                half_pts.append((x, y))
+            full_path = []
+            for px, py in half_pts:
+                full_path.append(f"{px},{py}")
+            for px, py in reversed([(2*cx - x, y) for x, y in half_pts]):
+                full_path.append(f"{px},{py}")
+            paths.append("M " + " L ".join(full_path) + " Z")
+    
+    elif style == "topography":
+        n_levels = rng.randint(6, 14)
+        cx, cy = w/2, h/2
+        stretch_x = 0.7 + rng.random() * 0.4
+        stretch_y = 0.5 + rng.random() * 0.3
+        for level in range(n_levels):
+            base_r = 10 + level * (min(w, h) * 0.32 / (n_levels + 1)) + rng.gauss(0, 5)
+            pts = []
+            n_pts = 40 + rng.randint(0, 20)
+            for i in range(n_pts + 1):
+                angle = i * 2 * math.pi / n_pts
+                r = base_r + rng.gauss(0, 8)
+                px = cx + r * stretch_x * math.cos(angle)
+                py = cy + r * stretch_y * math.sin(angle)
+                pts.append(f"{px},{py}")
+            paths.append("M " + " L ".join(pts) + " Z")
+    
     else:
         cell = rng.randint(20, 50)
         for ix in range(0, w, cell):
@@ -161,9 +209,9 @@ def generate_svg(seed, output_path):
 
 def generate_thought(seed):
     rng = random.Random(seed + 1)
-    openers = ["Today the", "A", "Perhaps", "Between", "Within", "Through", "Beyond"]
-    middles = ["pattern", "shape", "trace", "echo", "shadow", "whisper", "drift"]
-    closers = ["finds its form.", "emerges.", "lingers.", "unfolds.", "settles.", "remembers."]
+    openers = ["Today the", "A", "Perhaps", "Between", "Within", "Through", "Beyond", "Under", "After", "Before"]
+    middles = ["pattern", "shape", "trace", "echo", "shadow", "whisper", "drift", "stain", "ripple", "crest", "fold"]
+    closers = ["finds its form.", "emerges.", "lingers.", "unfolds.", "settles.", "remembers.", "fades.", "breathes.", "holds."]
     return f"{rng.choice(openers)} {rng.choice(middles)} {rng.choice(closers)}"
 
 
