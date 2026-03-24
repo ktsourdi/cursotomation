@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import random
 import hashlib
+import math
 from datetime import datetime
 from pathlib import Path
 
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "strata"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -65,6 +66,28 @@ def generate_svg(seed, output_path):
                 pts.append(f"{x},{y}")
             pts.append(f"{w},{y_base}")
             paths.append("M " + " L ".join(pts))
+    
+    elif style == "strata":
+        y = rng.uniform(0, 40)
+        while y < h + 20:
+            band = rng.uniform(18, 48)
+            y_top = y
+            y_bot = y + band
+            step = rng.choice([10, 12, 15, 18])
+            phase = rng.random() * 6.28
+            amp = rng.uniform(4, 18)
+            top_pts = []
+            bot_pts = []
+            for x in range(0, w + 1, step):
+                wobble = amp * (
+                    0.4 * math.sin(x * 0.02 + phase)
+                    + 0.35 * math.sin(x * 0.055 + phase * 1.7)
+                    + 0.25 * rng.gauss(0, 0.6)
+                )
+                top_pts.append(f"{x},{y_top + wobble * 0.35}")
+                bot_pts.append(f"{x},{y_bot + wobble}")
+            paths.append("M " + " L ".join(top_pts) + " L " + " L ".join(reversed(bot_pts)) + " Z")
+            y = y_bot + rng.uniform(-6, 10)
     
     elif style == "crystals":
         n = rng.randint(6, 14)
@@ -145,7 +168,14 @@ def generate_svg(seed, output_path):
                     else:
                         paths.append(f"M {ix},{iy} L {ix+cell},{iy+cell}")
     
-    svg_parts = [f'<path d="{p}" fill="none" stroke="{fg}" stroke-width="{rng.uniform(0.5, 3)}" opacity="{rng.uniform(0.3, 0.9)}"/>' for p in paths]
+    if style == "strata":
+        svg_parts = []
+        for i, p in enumerate(paths):
+            c = fg if i % 2 == 0 else accent
+            fo = 0.42 + (i % 4) * 0.1
+            svg_parts.append(f'<path d="{p}" fill="{c}" fill-opacity="{fo:.2f}" stroke="none"/>')
+    else:
+        svg_parts = [f'<path d="{p}" fill="none" stroke="{fg}" stroke-width="{rng.uniform(0.5, 3)}" opacity="{rng.uniform(0.3, 0.9)}"/>' for p in paths]
     
     svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">
