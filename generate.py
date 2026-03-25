@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import random
 import hashlib
+import math
 from datetime import datetime
 from pathlib import Path
 
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "orbits"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -131,6 +132,26 @@ def generate_svg(seed, output_path):
                     break
                 pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
+    
+    elif style == "orbits":
+        n_centers = rng.randint(5, 11)
+        for _ in range(n_centers):
+            cx = rng.uniform(50, w - 50)
+            cy = rng.uniform(50, h - 50)
+            r0 = rng.uniform(25, 95)
+            layers = rng.randint(2, 5)
+            for layer in range(layers):
+                r = r0 * (0.45 + layer * 0.22 + rng.random() * 0.12)
+                a1 = rng.random() * math.tau
+                sweep = rng.uniform(math.pi * 0.5, math.tau * 0.9)
+                a2 = a1 + sweep
+                x1 = cx + r * math.cos(a1)
+                y1 = cy + r * math.sin(a1)
+                x2 = cx + r * math.cos(a2)
+                y2 = cy + r * math.sin(a2)
+                large = 1 if sweep > math.pi else 0
+                sweep_flag = 1 if rng.random() > 0.5 else 0
+                paths.append(f"M {x1},{y1} A {r},{r} 0 {large},{sweep_flag} {x2},{y2}")
     
     else:
         cell = rng.randint(20, 50)
