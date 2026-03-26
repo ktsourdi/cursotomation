@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import random
 import hashlib
+import math
 from datetime import datetime
 from pathlib import Path
 
@@ -13,7 +14,7 @@ def date_seed(dt):
 def generate_svg(seed, output_path):
     rng = random.Random(seed)
     w, h = 400, 400
-    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots"])
+    style = rng.choice(["spirals", "waves", "crystals", "petals", "grid", "constellations", "roots", "aurora"])
     
     def hsv_to_rgb(h, s, v):
         if s == 0:
@@ -64,6 +65,22 @@ def generate_svg(seed, output_path):
                 y = y_base + rng.gauss(0, 25) + 30 * (1 if (x // 50) % 2 else -1)
                 pts.append(f"{x},{y}")
             pts.append(f"{w},{y_base}")
+            paths.append("M " + " L ".join(pts))
+    
+    elif style == "aurora":
+        layers = rng.randint(6, 14)
+        for layer in range(layers):
+            y_base = h * (layer + 0.5) / (layers + 0.5)
+            phase = rng.random() * math.tau
+            freq = 0.008 + rng.random() * 0.035
+            amp1 = 12 + rng.random() * 35
+            amp2 = 4 + rng.random() * 18
+            pts = []
+            for x in range(-5, w + 6, 3):
+                wobble = rng.gauss(0, 4) if rng.random() > 0.7 else 0
+                y = y_base + amp1 * math.sin(x * freq + phase) + amp2 * math.sin(x * freq * 2.3 + phase * 0.7) + wobble
+                y = max(2, min(h - 2, y))
+                pts.append(f"{x},{y}")
             paths.append("M " + " L ".join(pts))
     
     elif style == "crystals":
